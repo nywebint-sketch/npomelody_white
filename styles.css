@@ -255,14 +255,6 @@
     #artistsGrid .open-card .pad{
       padding:12px;
     }
-    #artistsGrid .artist-name{
-      display:block;
-      white-space:normal;
-      overflow:visible;
-      text-overflow:clip;
-      word-break:break-word;
-      line-height:1.2;
-    }
     .pad{padding:16px}
     .divider{height:1px; background:var(--stroke2); margin:14px 0}
     .muted{color:var(--muted)}
