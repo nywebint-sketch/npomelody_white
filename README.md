@@ -1,1 +1,3 @@
-# npomelody_test
+# НПО Мелодия
+
+Статический сайт (HTML/CSS/JS).
