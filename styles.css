@@ -486,6 +486,31 @@
     }
     #eventsGrid .event-media img{object-fit:cover}
 
+    .auth-forms{
+      gap:10px;
+    }
+    .auth-form{
+      display:grid;
+      gap:8px;
+      padding:12px;
+      border:1px solid var(--stroke2);
+      background:rgba(255,255,255,.02);
+    }
+    .auth-member{
+      border:1px solid var(--stroke2);
+      padding:12px;
+      background:rgba(255,255,255,.02);
+    }
+    .auth-status{
+      margin-top:12px;
+      font-size:13px;
+    }
+    .exclusive-list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
     /* Forms */
     .input, textarea{
       width:100%;

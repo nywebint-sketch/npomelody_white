@@ -55,6 +55,8 @@ const BOOKING_ADMIN_ENDPOINT = "https://httpbin.org/post";
 const BOOKING_COOLDOWN_MS = 60 * 1000;
 const BOOKING_MIN_FILL_MS = 3000;
 const BOOKING_KEY = "npo_booking_last_submit_ts";
+const CLUB_USERS_KEY = "npo_club_users_v1";
+const CLUB_SESSION_KEY = "npo_club_session_v1";
 
 let showUpcoming = false;
 
@@ -76,6 +78,149 @@ const safeHttpUrl = (value) => {
 };
 
 const createTag = (text) => el("span", { className: "tag", text: String(text || "").trim() || "—" });
+
+const readClubUsers = () => {
+  try {
+    const raw = localStorage.getItem(CLUB_USERS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveClubUsers = (users) => {
+  localStorage.setItem(CLUB_USERS_KEY, JSON.stringify(users));
+};
+
+const readClubSession = () => {
+  try {
+    return JSON.parse(localStorage.getItem(CLUB_SESSION_KEY) || "null");
+  } catch {
+    return null;
+  }
+};
+
+const saveClubSession = (session) => {
+  if (!session) {
+    localStorage.removeItem(CLUB_SESSION_KEY);
+    return;
+  }
+  localStorage.setItem(CLUB_SESSION_KEY, JSON.stringify(session));
+};
+
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
+
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+function renderClubAccess() {
+  const authGuest = $("#authGuest");
+  const authMember = $("#authMember");
+  const memberName = $("#memberName");
+  const authStatus = $("#authStatus");
+  const exclusiveLocked = $("#exclusiveLocked");
+  const exclusiveContent = $("#exclusiveContent");
+  const exclusiveBadge = $("#exclusiveBadge");
+
+  const session = readClubSession();
+  const isAuthorized = Boolean(session?.email);
+
+  if (authGuest) authGuest.hidden = isAuthorized;
+  if (authMember) authMember.hidden = !isAuthorized;
+  if (memberName) memberName.textContent = session?.name || session?.email || "участник";
+
+  if (exclusiveLocked) exclusiveLocked.hidden = isAuthorized;
+  if (exclusiveContent) exclusiveContent.hidden = !isAuthorized;
+  if (exclusiveBadge) exclusiveBadge.textContent = isAuthorized ? "открыт" : "закрыт";
+
+  if (authStatus) {
+    authStatus.textContent = isAuthorized
+      ? "Доступ к эксклюзиву активен."
+      : "Доступ к эксклюзиву закрыт.";
+  }
+}
+
+function setClubStatus(message) {
+  const authStatus = $("#authStatus");
+  if (authStatus && message) authStatus.textContent = message;
+}
+
+function initClubAuth() {
+  const registerForm = $("#registerForm");
+  const loginForm = $("#loginForm");
+  const logoutBtn = $("#logoutBtn");
+
+  registerForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const name = String(form.elements.name?.value || "").trim();
+    const email = normalizeEmail(form.elements.email?.value);
+    const password = String(form.elements.password?.value || "");
+    const password2 = String(form.elements.password2?.value || "");
+
+    if (!name || name.length < 2) {
+      setClubStatus("Имя должно быть не короче 2 символов.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setClubStatus("Укажи корректный email.");
+      return;
+    }
+    if (password.length < 6) {
+      setClubStatus("Пароль должен быть не короче 6 символов.");
+      return;
+    }
+    if (password !== password2) {
+      setClubStatus("Пароли не совпадают.");
+      return;
+    }
+
+    const users = readClubUsers();
+    if (users.some((u) => normalizeEmail(u.email) === email)) {
+      setClubStatus("Пользователь с таким email уже зарегистрирован.");
+      return;
+    }
+
+    users.push({ name, email, password, createdAt: new Date().toISOString() });
+    saveClubUsers(users);
+    saveClubSession({ name, email });
+    form.reset();
+    renderClubAccess();
+    setClubStatus("Регистрация успешна. Эксклюзив открыт.");
+  });
+
+  loginForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = normalizeEmail(form.elements.email?.value);
+    const password = String(form.elements.password?.value || "");
+
+    if (!isValidEmail(email) || !password) {
+      setClubStatus("Укажи email и пароль.");
+      return;
+    }
+
+    const users = readClubUsers();
+    const user = users.find((u) => normalizeEmail(u.email) === email && u.password === password);
+    if (!user) {
+      setClubStatus("Неверный email или пароль.");
+      return;
+    }
+
+    saveClubSession({ name: user.name, email: user.email });
+    form.reset();
+    renderClubAccess();
+    setClubStatus("Вход выполнен. Эксклюзив открыт.");
+  });
+
+  logoutBtn?.addEventListener("click", () => {
+    saveClubSession(null);
+    renderClubAccess();
+    setClubStatus("Ты вышел из аккаунта.");
+  });
+
+  renderClubAccess();
+}
 
 function setupOpenCard(node, type, id) {
   if (!node) return;
@@ -774,3 +919,4 @@ renderArtists();
 renderReleases();
 renderStreams();
 renderMerch();
+initClubAuth();
