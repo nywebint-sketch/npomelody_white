@@ -63,6 +63,7 @@
           <h2>АФИША</h2>
         </div>
         <div class="row">
+          <span class="pill" id="nextEventPill">Следующий ивент: —</span>
         </div>
       </div>
 
@@ -77,6 +78,9 @@
         <div>
           <h2>Артисты &amp; букинг</h2>
           <div class="sub">тестовый каталог</div>
+        </div>
+        <div class="row">
+          <input type="search" class="input artist-search" id="artistSearch" placeholder="Поиск артиста..." aria-label="Поиск по артистам">
         </div>
       </div>
 
@@ -179,6 +183,13 @@
           <div class="divider"></div>
 
           <div id="authGuest" class="grid auth-forms">
+            <form id="loginForm" class="auth-form">
+              <b>Вход</b>
+              <input class="input" name="email" type="email" placeholder="Email" required>
+              <input class="input" name="password" type="password" placeholder="Пароль" required>
+              <button class="btn" type="submit">Войти</button>
+            </form>
+
             <form id="registerForm" class="auth-form">
               <b>Регистрация</b>
               <input class="input" name="name" placeholder="Имя" required>
@@ -186,13 +197,6 @@
               <input class="input" name="password" type="password" placeholder="Пароль (мин. 6 символов)" required>
               <input class="input" name="password2" type="password" placeholder="Повтори пароль" required>
               <button class="btn primary" type="submit">Создать аккаунт</button>
-            </form>
-
-            <form id="loginForm" class="auth-form">
-              <b>Вход</b>
-              <input class="input" name="email" type="email" placeholder="Email" required>
-              <input class="input" name="password" type="password" placeholder="Пароль" required>
-              <button class="btn" type="submit">Войти</button>
             </form>
           </div>
 
@@ -255,9 +259,9 @@
           <div class="row"><span class="tag">Пресса</span><span class="muted">press@npo-melodiya.test</span></div>
           <div class="divider"></div>
           <div class="row">
-            <a class="btn" href="#" onclick="alert(&#39;Поставь ссылку&#39;); return false;">Telegram</a>
-            <a class="btn" href="#" onclick="alert(&#39;Поставь ссылку&#39;); return false;">Instagram</a>
-            <a class="btn" href="#" onclick="alert(&#39;Поставь ссылку&#39;); return false;">SoundCloud</a>
+            <a class="btn" href="#" data-placeholder-link="Поставь ссылку">Telegram</a>
+            <a class="btn" href="#" data-placeholder-link="Поставь ссылку">Instagram</a>
+            <a class="btn" href="#" data-placeholder-link="Поставь ссылку">SoundCloud</a>
           </div>
         </div>
       </div>
@@ -271,24 +275,16 @@
 </main>
 
 <!-- MODAL -->
-<div id="modal" style="
-  position:fixed; inset:0; z-index:100; display:none;
-  align-items:center; justify-content:center; padding:18px;
-  background: rgba(0,0,0,.70); backdrop-filter: blur(8px);
-">
-  <div style="
-    width:min(920px, 100%); max-height:86vh; overflow:auto;
-    border-radius:20px; border:1px solid var(--stroke);
-    background:#060606;
-  ">
-    <div style="display:flex; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid var(--stroke2);">
-      <div>
-        <div id="mTitle" style="font-weight:800; letter-spacing:.2px;">—</div>
-        <div id="mSub" class="muted" style="margin-top:6px; font-size:13px;">—</div>
+<div id="modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-inner">
+    <div class="modal-header">
+      <div class="modal-header-text">
+        <div id="mTitle" class="modal-title">—</div>
+        <div id="mSub" class="modal-sub">—</div>
       </div>
-      <button class="btn" id="mClose" type="button">Закрыть</button>
+      <button class="btn ghost" id="mClose" type="button">Закрыть</button>
     </div>
-    <div class="pad" id="mBody"></div>
+    <div class="modal-body pad" id="mBody"></div>
   </div>
 </div>
 

@@ -19,8 +19,8 @@ const data = {
     { id: "e1", title: "Maslaynitsa", date: "2026-02-19T22:00:00", place: "НПО Мелодия", tags: ["live", "electronic"], status: "archive", poster: "event-maslaynitsa.jpg", about: "Ивент Maslaynitsa.", lineup: ["am1d", "di-au", "feel gainsbourg", "egor popov", "nyaono"] },
     { id: "e2", title: "Cliche", date: "2026-02-20T22:00:00", place: "НПО Мелодия", tags: ["club", "b2b"], status: "archive", poster: "event-cliche.jpg", about: "Ночной ивент Cliche.", lineup: ["ayokiddy", "fckshizy", "luxxomea", "manyice", "norman b2b void", "whysobored", "yardyard"] },
     { id: "e3", title: "Pirate Jet", date: "2026-02-28T20:00:00", place: "НПО Мелодия", tags: ["live", "concert"], status: "archive", poster: "event-pirate-jet.jpg", about: "Pirate Jet: концерты и live performance.", lineup: ["gummies (concert)", "черные бояре x света ефремова (live performance)", "m1lbeee (concert)", "ucuda (concert)", "фантом м-100 (live)", "valentin fufaev", "dj baby steps", "yze (concert)", "bogdamn"] },
-    { id: "e4", title: "8 Марта — Первый уикенд весны", date: "2026-03-08T21:30:00", place: "НПО Мелодия", tags: ["weekend", "live", "32h"], status: "tickets", poster: "event-8-marta.jpg", ticketUrl: "https://moscow.qtickets.events/219423-78", about: "Первый уикенд весны — 32 часа. День 1. Двери: 21:30.", lineup: ["Line-up скоро"] },
-    { id: "e5", title: "9 Марта — Первый уикенд весны (день 2)", date: "2026-03-09T17:00:00", place: "НПО Мелодия", tags: ["weekend", "8march"], status: "tickets", poster: "event-8-marta.jpg", ticketUrl: "https://moscow.qtickets.events/219423-78", about: "Продолжение уикенда весны. День 2. Полный анонс по лайнапу — скоро.", lineup: ["Line-up скоро"] }
+    { id: "e4", title: "8 Марта ", date: "2026-03-08T21:30:00", place: "НПО Мелодия", tags: ["weekend", "live", "32h"], status: "tickets", poster: "event-8-marta.jpg", ticketUrl: "https://moscow.qtickets.events/219423-78", about: "Первый уикенд весны — 32 часа. День 1. Двери: 21:30.", lineup: ["Line-up скоро"] },
+    { id: "e5", title: "9 Марта  (день 2)", date: "2026-03-09T17:00:00", place: "НПО Мелодия", tags: ["weekend", "8march"], status: "tickets", poster: "event-8-marta.jpg", ticketUrl: "https://moscow.qtickets.events/219423-78", about: "Продолжение уикенда весны. День 2. Полный анонс по лайнапу — скоро.", lineup: ["Line-up скоро"] }
   ],
   artists: [
     { id: "a2", name: "AND", role: "Live act", bookable: true, tags: ["live", "hardware"], bio: "Живой сет с железом." },
@@ -54,9 +54,11 @@ const data = {
 const BOOKING_ADMIN_ENDPOINT = "https://httpbin.org/post";
 const BOOKING_COOLDOWN_MS = 60 * 1000;
 const BOOKING_MIN_FILL_MS = 3000;
+const BOOKING_REQUEST_TIMEOUT_MS = 12000;
 const BOOKING_KEY = "npo_booking_last_submit_ts";
 const CLUB_TOKEN_KEY = "npo_club_token_v1";
 const CLUB_API_BASE = window.location.protocol === "file:" ? "http://localhost:8000" : "";
+const ARTISTS_VISIBLE = 6;
 
 let showUpcoming = false;
 
@@ -329,16 +331,12 @@ function renderEvents() {
   }
 
   list.forEach((eventItem) => {
-    const titleTokens = String(eventItem.title || "").trim().split(/\s+/).filter(Boolean);
-    const firstWord = titleTokens.find((token) => /[A-Za-zА-Яа-яЁё]/.test(token)) || titleTokens[0] || "—";
-    const shortTitle = firstWord.replace(/[.,:;!?]+$/g, "");
-
     const card = el("div", { className: "card" });
     card.appendChild(createMedia(eventItem.poster || "smile.png", eventItem.title, "media event-media"));
 
     const pad = el("div", { className: "pad" });
     pad.appendChild(el("div", { className: "muted event-card-date", text: fmtDT(eventItem.date) }));
-    pad.appendChild(el("b", { className: "event-card-title", text: shortTitle }));
+    pad.appendChild(el("b", { className: "event-card-title", text: eventItem.title }));
 
     card.appendChild(pad);
     setupOpenCard(card, "event", eventItem.id);
@@ -382,7 +380,8 @@ function renderArtists() {
     );
   }
 
-  list.slice(0, 6).forEach((artist) => {
+  const toShow = q ? list : list.slice(0, ARTISTS_VISIBLE);
+  toShow.forEach((artist) => {
     const card = el("div", { className: "card artist-card" });
     card.appendChild(createMedia(artist.poster || "smile.png", artist.name, "media square"));
 
@@ -894,7 +893,7 @@ document.addEventListener("submit", async (e) => {
   if (bookingSubmit) bookingSubmit.disabled = true;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12000);
+  const timeout = setTimeout(() => controller.abort(), BOOKING_REQUEST_TIMEOUT_MS);
 
   try {
     const res = await fetch(endpoint, {
@@ -980,6 +979,16 @@ document.addEventListener("keydown", (e) => {
     closeModal();
   }
 });
+
+document.addEventListener("click", (e) => {
+  const link = e.target.closest("[data-placeholder-link]");
+  if (link) {
+    e.preventDefault();
+    alert(link.dataset.placeholderLink || "Поставь ссылку");
+  }
+});
+
+$("#artistSearch")?.addEventListener("input", () => renderArtists());
 
 const yearNode = $("#year");
 if (yearNode) yearNode.textContent = new Date().getFullYear();
