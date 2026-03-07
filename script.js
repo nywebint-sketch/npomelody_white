@@ -6,10 +6,16 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const pad2 = (n) => String(n).padStart(2, "0");
 
+const monthsRu = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 const fmtDT = (iso) => {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
   return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+};
+const fmtDateShort = (iso) => {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return `${d.getDate()} ${monthsRu[d.getMonth()]}`;
 };
 
 const sortAsc = (arr, key) => [...arr].sort((a, b) => new Date(a[key]) - new Date(b[key]));
@@ -326,7 +332,6 @@ function renderEvents() {
     card.appendChild(createMedia(eventItem.poster || "smile.png", eventItem.title, "media event-media event-poster"));
 
     const pad = el("div", { className: "pad" });
-    pad.appendChild(el("div", { className: "muted event-card-date", text: fmtDT(eventItem.date) }));
     pad.appendChild(el("b", { className: "event-card-title", text: eventItem.title }));
 
     card.appendChild(pad);
