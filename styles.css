@@ -338,12 +338,6 @@
     #artistsGrid .open-card .pad{
       padding:12px;
     }
-    #artistsGrid .artist-card .artist-card-body{
-      padding:10px 12px;
-      min-height:56px;
-      display:flex;
-      align-items:center;
-    }
     #artistsGrid .artist-card .artist-card-name{
       display:block;
       width:100%;
@@ -550,19 +544,49 @@
       display:flex; align-items:center; justify-content:center;
       padding:12px;
     }
-    /* Медиа в карточках сеток — как в афише: без рамки, на всю ширину */
-    #artistsGrid .open-card .media,
+    /* Карточки артистов: высота по контенту, квадратное фото, без пустых блоков */
+    #artistsGrid{
+      align-items:start;
+    }
+    #artistsGrid .artist-card{
+      height:auto;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+    #artistsGrid .artist-card .media{
+      width:100%;
+      aspect-ratio:1/1;
+      overflow:hidden;
+      padding:0;
+      border:none;
+      background:transparent;
+      display:block;
+      flex:none;
+    }
+    #artistsGrid .artist-card .media img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    #artistsGrid .artist-card .artist-card-body{
+      padding:12px;
+      min-height:0;
+      flex:none;
+      display:block;
+    }
+    /* Релизы: без рамки, на всю ширину */
     #releasesGrid .open-card .media{
       width:100%;
       max-width:100%;
       padding:0;
-      border:none;сде
+      border:none;
       background:transparent;
       overflow:hidden;
       display:block;
       aspect-ratio:unset;
     }
-    #artistsGrid .open-card .media img,
     #releasesGrid .open-card .media img{
       width:100%;
       height:auto;
@@ -1029,6 +1053,14 @@
       .media{
         aspect-ratio:1/1;
         padding:6px;
+      }
+      #artistsGrid .artist-card .media{
+        padding:0;
+        aspect-ratio:1/1;
+      }
+      #artistsGrid .artist-card .artist-card-body{
+        padding:12px;
+        min-height:0;
       }
       .media.wide{
         aspect-ratio:4/3;
