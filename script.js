@@ -385,17 +385,14 @@ function renderReleases() {
     card.appendChild(createMedia("smile.png", "", "media square"));
 
     const pad = el("div", { className: "pad" });
-    const row = el("div", { className: "row sp" });
 
     const title = el("b", { text: release.title });
-    title.style.maxWidth = "70%";
+    title.style.maxWidth = "100%";
     title.style.overflow = "hidden";
     title.style.textOverflow = "ellipsis";
     title.style.whiteSpace = "nowrap";
 
-    row.appendChild(title);
-    row.appendChild(createTag(release.format));
-    pad.appendChild(row);
+    pad.appendChild(title);
 
     const date = el("div", { className: "muted", text: release.date });
     date.style.marginTop = "6px";
